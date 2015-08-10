@@ -35,8 +35,8 @@ def main():
         run_name = 'turbulent_breakup',
         gerris = 'gerris3D',
         gfsfile = 'turbulent_breakup.gfs',
-        num_processors = 8,
-        num_split = 1,
+        num_processors = 16,
+        num_split = 2,
         min_level = 1,
         max_level = 7,
         simulation_output_times = 0.1
