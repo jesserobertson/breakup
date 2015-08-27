@@ -1,0 +1,92 @@
+# file:   laminar.gfs
+# author: Jess Robertson (based on code from Gerris examples)
+#         CSIRO Earth Science and Resource Engineering
+# date:   Tuesday February 26, 2013
+#
+# description: Simulation of a sulfide thread breaking up. Stolen mostly from the 
+#   Gerris Plateau-Rayleigh example at http://gerris.dalembert.upmc.fr/gerris/examples/
+#
+#   Parameters to be defined are:
+#
+#       density_ratio - the density ratio between the sulfide and magma
+#           (rho_s / rho_m ~ 2)
+#       viscosity_ratio = the viscosity ratio between the sulfide and magma (~0.01)
+#       max_level - the finest resolution (9 is good for a desktop)
+#       end_time - the end time for the simulation
+#
+#   Ratios are sulfide / magma. Don't modify this script directly, see
+#   laminar_breakup.py to set parameters etc.
+#
+1 0 GfsSimulation GfsBox GfsGEdge {} {
+    # Function definitions etc
+    Global {
+        // Parameters
+        static double volume = 8. * M_PI * M_PI * M_PI;
+        static double radius = 0.2;
+        static double epsilon = 0.02;
+
+        // Physical properties
+        static double viscosity(double tracer) {
+            return (1 + (viscosity_ratio - 1) * tracer)
+                   / ( (float) reynolds_number );
+        }
+        static double inv_density(double tracer) {
+            return 1 / ( (float) 1 + tracer * (density_ratio - 1) );
+        }
+    }
+
+    # Set up sulfide and magma properties
+    Refine 5
+    VariableTracerVOF T
+    # Filter the volume fraction for smoother density transition for
+    # high density ratios: this helps the Poisson solver
+    VariableFiltered T1 T 1
+    VariableCurvature K T Kmax
+    PhysicalParams {
+        L = 2. * M_PI
+        alpha = inv_density(T1)
+    }
+    SourceViscosity viscosity(T1)
+    SourceTension T 1 K
+
+    # Initialize the tracer
+    InitFraction {} T ({
+        x -= 0.5; 
+        y += 0.5; z += 0.5;
+        double r = radius*(1. + epsilon*cos(M_PI*x));
+        return r*r - y*y - z*z;
+    })
+
+    ## ADAPTIVITY
+    # Adapt according to interface curvature. Make sure we have at
+    # least 5 grid points per radius of curvature, up to level
+    # 10. Only start after 5 timesteps to ignore transients due to
+    # initialisation
+    AdaptFunction { istart = 5 istep = 10 } {
+        cmax = 0.2
+        maxlevel = max_level
+        cfactor = 2
+    } (T > 0 && T < 1 ? dL*Kmax : 0)
+
+    # Balance the number of elements across parallel subdomains at every
+    # 5 timesteps if the imbalance is larger than 0.1 (i.e. 10% difference
+    # between the largest and smallest subdomains).
+    EventBalance { istep = 5 } 0.1
+
+    # Output of solution information/data
+    Time { end = end_time }
+    OutputProgress { istep = 1 } stderr
+    OutputTime { istep = 1 } laminar_breakup.log
+    OutputBalance { istep = 1 } laminar_breakup.log
+    OutputSimulation {
+        start = 0 step = simulation_output_times end = end_time
+    } simulation_%09.3f.gfs
+}
+GfsBox {
+    top = BoundaryOutflow
+    bottom = Boundary
+    back = Boundary
+    front = BoundaryOutflow
+    left = Boundary
+    right = Boundary
+}

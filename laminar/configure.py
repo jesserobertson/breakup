@@ -26,6 +26,7 @@ def main():
         # Properties
         density_ratio = 2,
         viscosity_ratio = 0.01,
+        reynolds_number = 0.1,
         end_time = 2,
 
         # Simulation info
