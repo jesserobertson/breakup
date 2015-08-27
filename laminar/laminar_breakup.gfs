@@ -9,11 +9,9 @@
 #   Parameters to be defined are:
 #
 #       density_ratio - the density ratio between the sulfide and magma
-#           (s / rho_magma)
-#       viscosity_ratio = the viscosity ratio between the sulfide and magma
-#       min_level - the minimum resolution (3 works well)
-#       max_level - the finest resolution (7-8 is good for a desktop)
-#       add_tracer - the time to add the sulfide
+#           (rho_s / rho_m ~ 2)
+#       viscosity_ratio = the viscosity ratio between the sulfide and magma (~0.01)
+#       max_level - the finest resolution (9 is good for a desktop)
 #       end_time - the end time for the simulation
 #
 #   Ratios are sulfide / magma. Don't modify this script directly, see
@@ -66,7 +64,7 @@
     # initialisation
     AdaptFunction { istart = 5 istep = 10 } {
         cmax = 0.2
-        maxlevel = 10
+        maxlevel = max_level
         cfactor = 2
     } (T > 0 && T < 1 ? dL*Kmax : 0)
 

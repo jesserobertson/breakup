@@ -24,22 +24,19 @@ def main():
     # Configure current run
     configuration = dict(
         # Properties
-        density_ratio = 1,
+        density_ratio = 2,
         viscosity_ratio = 0.01,
-        reynolds_number = 1000,
-        weber_number = 10,
-        add_tracer = 80,
-        end_time = 100,
+        end_time = 2,
 
         # Simulation info
-        run_name = 'turbulent_breakup',
+        run_name = 'laminar_breakup',
         gerris = 'gerris3D',
-        gfsfile = 'turbulent_breakup.gfs',
-        num_processors = 8,
-        num_split = 1,
+        gfsfile = 'laminar_breakup.gfs',
+        num_processors = 16,
+        num_split = 2,
         min_level = 1,
-        max_level = 7,
-        simulation_output_times = 0.1
+        max_level = 10,
+        simulation_output_times = 0.01
     )
 
     # Load up runinng template
