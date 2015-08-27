@@ -1,37 +1,31 @@
-# file: chaos.gfs
+# file:   laminar.gfs
 # author: Jess Robertson (based on code from Gerris examples)
 #         CSIRO Earth Science and Resource Engineering
 # date:   Tuesday February 26, 2013
 #
-# description: Simulation of droplet breakup in a turbulent field. Modified
-#   from an example in the Gerris example suite
-#
-#   We initialise the turbulent field using a linear forcing in a periodic box
-#   Initial condition is the ABC flow. See http://www.jstor.org/stable/2102274
-#   for discussion of parameters
+# description: Simulation of a sulfide thread breaking up. Stolen mostly from the 
+#   Gerris Plateau-Rayleigh example at http://gerris.dalembert.upmc.fr/gerris/examples/
 #
 #   Parameters to be defined are:
 #
 #       density_ratio - the density ratio between the sulfide and magma
 #           (s / rho_magma)
 #       viscosity_ratio = the viscosity ratio between the sulfide and magma
-#       reynolds_number - the Reynolds number for the simulation
-#       weber_number - the Weber number for the simulation
 #       min_level - the minimum resolution (3 works well)
 #       max_level - the finest resolution (7-8 is good for a desktop)
 #       add_tracer - the time to add the sulfide
 #       end_time - the end time for the simulation
 #
 #   Ratios are sulfide / magma. Don't modify this script directly, see
-#   turbulent_breakup.py to set parameters etc.
+#   laminar_breakup.py to set parameters etc.
 #
-1 3 GfsSimulation GfsBox GfsGEdge {} {
+1 0 GfsSimulation GfsBox GfsGEdge {} {
     # Function definitions etc
     Global {
         // Parameters
         static double volume = 8. * M_PI * M_PI * M_PI;
-        static double start_tracer = add_tracer;
-        static double stop_tracer = add_tracer + 0.1;
+        static double radius = 0.2;
+        static double epsilon = 0.02;
 
         // Physical properties
         static double viscosity(double tracer) {
@@ -41,107 +35,40 @@
         static double inv_density(double tracer) {
             return 1 / ( (float) 1 + tracer * (density_ratio - 1) );
         }
-
-        // Tracer distribution
-        static double tracer_init(double x, double y, double z) {
-            static double droplet_radius = M_PI;
-            double radius_sq = x * x + y * y + z * z;
-            return radius_sq < droplet_radius ? 1 : 0;
-        }
-
-        // Velocity distribution
-        static double A = 1;
-        static double B = 1;
-        static double C = 1;
-        static double x_velocity(double x, double y, double z) {
-            return A * sin(z) + C * cos(y);
-        }
-        static double y_velocity(double x, double y, double z) {
-            return B * sin(x) + A * cos(z);
-        }
-        static double z_velocity(double x, double y, double z) {
-            return C * sin(y) + B * cos(x);
-        }
     }
 
     # Set up sulfide and magma properties
-    Refine 4
+    Refine 5
     VariableTracerVOF T
+    # Filter the volume fraction for smoother density transition for
+    # high density ratios: this helps the Poisson solver
+    VariableFiltered T1 T 1
     VariableCurvature K T Kmax
     PhysicalParams {
         L = 2. * M_PI
-        alpha = inv_density(T)
+        alpha = inv_density(T1)
     }
-    SourceViscosity viscosity(T)
-    SourceTension T (1 / weber_number) K
+    SourceViscosity viscosity(T1)
+    SourceTension T 1 K
 
-    # Initialize the velocity and tracer
-    Init {} {
-        T = 0
-        U = x_velocity(x, y, z)
-        V = y_velocity(x, y, z)
-        W = z_velocity(x, y, z)
-    }
-
-    # We want to add tracer partway through the simulation
-    # We first refine around the surface of the droplet and then
-    # add the tracer
-    EventList { start = add_tracer step = add_tracer } {
-        Init {} {
-            T = tracer_init(x, y, z)
-        }
-        AdaptFunction {} {
-            cmax = 0
-            minlevel = min_level
-            maxlevel = max_level
-        } (T > 0 && T < 1)
-    }
-
-    ## FLOW STATISTICS
-    # Velocity sums
-    SpatialSum { istep = 1 } sum_U U
-    SpatialSum { istep = 1 } sum_V V
-    SpatialSum { istep = 1 } sum_W W
-    SpatialSum { istep = 1 } sum_vnorm Velocity
-
-    # Calculate -eps = mu * sum_{ij} (partial_j u_i)^2
-    SpatialSum { istep = 1 } dissipation {
-      return viscosity(T) *
-        (dx("U")*dx("U") + dy("U")*dy("U") + dz("U")*dz("U") +
-         dx("V")*dx("V") + dy("V")*dy("V") + dz("V")*dz("V") +
-         dx("W")*dx("W") + dy("W")*dy("W") + dz("W")*dz("W"));
-    }
-
-    # The mean fluctuating kinetic energy
-    SpatialSum { istep = 1 } kinetic_energy {
-        return 0.5*((U - (sum_U / volume))*(U - (sum_U / volume)) +
-                    (V - (sum_V / volume))*(V - (sum_V / volume)) +
-                    (W - (sum_W / volume))*(W - (sum_W / volume)));
-    }
-
-    ## FORCING
-    # Add the linear forcing, subtracting the mean
-    Source U (0.1 * (U - sum_U / volume))
-    Source V (0.1 * (V - sum_V / volume))
-    Source W (0.1 * (W - sum_W / volume))
+    # Initialize the tracer
+    InitFraction {} T ({
+        x -= 0.5; 
+        y += 0.5; z += 0.5;
+        double r = radius*(1. + epsilon*cos(M_PI*x));
+        return r*r - y*y - z*z;
+    })
 
     ## ADAPTIVITY
-    # We want adaptivity around the fluid interface and the velocity field
-    AdaptFunction { istep = 1 } {
-        cmax = 0
-        minlevel = min_level
-        maxlevel = max_level
-    } (T > 0 && T < 1)
-    AdaptError { istep = 1 } {
-        cmax = 5e-2
-        minlevel = min_level
-        maxlevel = max_level
-    } U * sum_vnorm / volume
-    AdaptError { istep = 1 } {
-        cmax = 5e-2
-        minlevel = min_level
-        maxlevel = max_level
-    } V * sum_vnorm / volume
+    # Adapt according to interface curvature. Make sure we have at
+    # least 5 grid points per radius of curvature, up to level
+    # 10. Only start after 5 timesteps to ignore transients due to
+    # initialisation
+    AdaptFunction { istart = 5 istep = 10 } {
+        cmax = 0.2
+        maxlevel = 10
+        cfactor = 2
+    } (T > 0 && T < 1 ? dL*Kmax : 0)
 
     # Balance the number of elements across parallel subdomains at every
     # 5 timesteps if the imbalance is larger than 0.1 (i.e. 10% difference
@@ -149,31 +76,19 @@
     EventBalance { istep = 5 } 0.1
 
     # Output of solution information/data
-    GModule gfsview
     Time { end = end_time }
     OutputProgress { istep = 1 } stderr
-    OutputTime { istep = 1 } turbulent_breakup.log
-    OutputBalance { istep = 1 } turbulent_breakup.log
-    OutputScalarStats { istep = 1 } dissipation.txt { v = dissipation / volume }
-    OutputScalarStats { istep = 1 } energy.txt { v = kinetic_energy / volume }
+    OutputTime { istep = 1 } laminar_breakup.log
+    OutputBalance { istep = 1 } laminar_breakup.log
     OutputSimulation {
-        start = 0 step = simulation_output_times end = 30
-    } simulation_spinup_%09.3f.gfs
-    OutputSimulation {
-        start = add_tracer step = simulation_output_times
-    } simulation_tracer_%09.3f.gfs
-    OutputView {
-        start = 0 step = simulation_output_times end = 30
-    } view_spinup_%09.3f.ppm {
-        format = PPM width = 1280 height = 960
-    } blob.gfv
-    OutputView {
-        start = add_tracer step = simulation_output_times
-    } view_tracer_%09.3f.ppm {
-        format = PPM width = 1280 height = 960
-    } blob.gfv
+        start = 0 step = simulation_output_times end = end_time
+    } simulation_%09.3f.gfs
 }
-GfsBox {}
-1 1 top
-1 1 right
-1 1 front
+GfsBox {
+    top = BoundaryOutflow
+    bottom = Boundary
+    back = Boundary
+    front = BoundaryOutflow
+    left = Boundary
+    right = Boundary
+}
