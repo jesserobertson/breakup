@@ -18,7 +18,7 @@
 #   Ratios are sulfide / magma. Don't modify this script directly, see
 #   configure.py to set parameters etc.
 #
-1 3 GfsAdvection GfsBox GfsGEdge {} {
+1 0 GfsSimulation GfsBox GfsGEdge {} {
     # Function definitions etc
     Global {
         // Parameters
@@ -118,4 +118,11 @@
         start = 0 step = simulation_output_times
     } simulation_%09.3f.gfs
 }
-GfsBox {}
+GfsBox {
+    left = BoundaryOutflow
+    right = BoundaryOutflow
+    top = BoundaryOutflow
+    bottom = BoundaryOutflow
+    front = BoundaryOutflow
+    back = BoundaryOutflow
+}
