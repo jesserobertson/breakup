@@ -23,8 +23,6 @@
     Global {
         // Parameters
         static double volume = 8. * M_PI * M_PI * M_PI;
-        static double start_tracer = add_tracer;
-        static double stop_tracer = add_tracer + 0.1;
 
         // Physical properties
         static double viscosity(double tracer) {

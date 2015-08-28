@@ -27,7 +27,8 @@ def main():
         capillary_number = 0.1,
         viscosity_ratio = 0.01,
         reynolds_number = 100,
-        end_time = 2,
+        period = 1,
+        end_time = 6,
 
         # Simulation info
         run_name = 'folding',
