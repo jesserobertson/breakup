@@ -38,11 +38,11 @@
         }
 
         // Streamfunction
-        static double A(double t) {
+        static double tick(double t) {
             int step = floor(2 * t / period);
             return step % 2;
         }
-        static double B(double t) {
+        static double tock(double t) {
             int step = floor(2 * t / period);
             return (step - 1) % 2;
         }
@@ -77,12 +77,12 @@
 
     # Set up forcings
     Source U {
-        return A(t) * vortex_x(0.25, 0.25, x, y) + 
-               B(t) * vortex_x(-0.25, -0.25, x, y);
+        return tick(t) * vortex_x(0.25, 0.25, x, y) + 
+               tock(t) * vortex_x(-0.25, -0.25, x, y);
     }
     Source V {
-        return A(t) * vortex_y(0.25, 0.25, x, y) + 
-               B(t) * vortex_y(-0.25, -0.25, x, y);
+        return tick(t) * vortex_y(0.25, 0.25, x, y) + 
+               tock(t) * vortex_y(-0.25, -0.25, x, y);
     }
 
     ## ADAPTIVITY

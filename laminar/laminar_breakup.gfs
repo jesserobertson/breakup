@@ -44,7 +44,7 @@
     VariableCurvature K T Kmax
     PhysicalParams {
         L = 2. * M_PI
-        alpha = inv_density(T1)
+        alpha = 1
     }
     SourceViscosity viscosity(T1)
     SourceTension T 1 K
