@@ -1,0 +1,110 @@
+# file: chaos.gfs
+# author: Jess Robertson (based on code from Gerris examples)
+#         CSIRO Earth Science and Resource Engineering
+# date:   Tuesday February 26, 2013
+#
+# description: Simulation of thread formation in a laminar chaotic flow field. 
+#
+#   Parameters to be defined are:
+#
+#       viscosity_ratio - the viscosity ratio between the sulfide and magma
+#       reynolds_number - the Reynolds number for the simulation
+#       capillary_number - the capillary number for the simulation
+#       min_level - the minimum resolution (3 works well)
+#       max_level - the finest resolution (7-8 is good for a desktop)
+#       period - the period of the vortex blinking
+#       end_time - the end time for the simulation
+#
+#   Ratios are sulfide / magma. Don't modify this script directly, see
+#   configure.py to set parameters etc.
+#
+1 3 GfsAdvection GfsBox GfsGEdge {} {
+    # Function definitions etc
+    Global {
+        // Parameters
+        static double volume = 8. * M_PI * M_PI * M_PI;
+        static double start_tracer = add_tracer;
+        static double stop_tracer = add_tracer + 0.1;
+
+        // Physical properties
+        static double viscosity(double tracer) {
+            return (1 + (viscosity_ratio - 1) * tracer)
+                   / ( (float) reynolds_number );
+        }
+
+        // Tracer distribution
+        static double tracer_init(double x, double y, double z) {
+            static double droplet_radius = 0.25 * M_PI;
+            double radius_sq = x * x + y * y + z * z;
+            return radius_sq < droplet_radius ? 1 : 0;
+        }
+
+        // Streamfunction
+        static double A(double t) {
+            return t % period < period / 2;
+        }
+        static double B(double t) {
+            return t % period > period / 2;
+        }
+        static double vortex_x(double x0, double y0, double x, double y) {
+            double radius_sq = (x - x0) * (x - x0) + (y - y0) * (y - y0);
+            return y / radius_sq;
+        }
+        static double vortex_y(double x0, double y0, double x, double y) {
+            double radius_sq = (x - x0) * (x - x0) + (y - y0) * (y - y0);
+            return x / radius_sq;
+        }
+    }
+
+    # Set up sulfide and magma properties
+    Refine 2
+    VariableTracerVOF T
+    VariableCurvature K T Kmax
+    PhysicalParams {
+        L = 2. * M_PI
+        alpha = 1
+    }
+    SourceViscosity viscosity(T)
+    SourceTension T (1 / capillary_number) K
+
+    # Initialize the velocity and tracer
+    Init {} {
+        T = tracer_init(x, y, z)
+        U = 0
+        V = 0
+        W = 0
+    }
+
+    # Set up forcings
+    Source U {
+        return A(t) * vortex_x(0.25, 0.25, x, y) + 
+               B(t) * vortex_x(-0.25, -0.25, x, y);
+    }
+    Source V {
+        return A(t) * vortex_y(0.25, 0.25, x, y) + 
+               B(t) * vortex_y(-0.25, -0.25, x, y);
+    }
+
+    ## ADAPTIVITY
+    # We want adaptivity around the fluid interface and the velocity field
+    AdaptFunction { istep = 1 } {
+        cmax = 0.1 maxlevel = max_level
+        cfactor = 2. 
+    } (T > 0. && T < 1.)*dL*fabs(K)
+    AdaptThickness { istep = 1 } { maxlevel = max_level } T
+
+    # Balance the number of elements across parallel subdomains at every
+    # 5 timesteps if the imbalance is larger than 0.1 (i.e. 10% difference
+    # between the largest and smallest subdomains).
+    EventBalance { istep = 5 } 0.1
+
+    # Output of solution information/data
+    Time { end = end_time }
+    OutputProgress { istep = 1 } stderr
+    OutputTime { istep = 1 } turbulent_breakup.log
+    OutputBalance { istep = 1 } turbulent_breakup.log
+    OutputSimulation {
+        start = 0 step = simulation_output_times
+    } simulation_%09.3f.gfs
+}
+GfsBox {}
