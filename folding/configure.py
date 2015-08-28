@@ -36,8 +36,8 @@ def main():
         gfsfile = 'folding.gfs',
         num_processors = 16,
         num_split = 2,
-        min_level = 1,
-        max_level = 8,
+        min_level = 3,
+        max_level = 9,
         simulation_output_times = 0.01
     )
 

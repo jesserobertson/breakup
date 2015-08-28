@@ -92,6 +92,7 @@
         minlevel = min_level
         maxlevel = max_level
     } (T > 0 && T < 1)
+    SpatialSum { istep = 1 } sum_vnorm Velocity
     AdaptError { istep = 1 } {
         cmax = 5e-2
         minlevel = min_level
