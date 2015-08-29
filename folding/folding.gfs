@@ -57,7 +57,7 @@
     }
 
     # Set up sulfide and magma properties
-    Refine 2
+    RefineSurface max_level tracer_init(x, y, z)
     VariableTracerVOF T
     VariableCurvature K T Kmax
     PhysicalParams {
@@ -70,10 +70,11 @@
     # Initialize the velocity and tracer
     Init {} {
         T = tracer_init(x, y, z)
-        U = 0
-        V = 0
+        U = vortex_x(0.25, 0.25, x, y)
+        V = vortex_y(0.25, 0.25, x, y)
         W = 0
     }
+
 
     # Set up forcings
     Source U {
