@@ -32,7 +32,7 @@ def main():
 
         # Simulation info
         run_name = 'folding',
-        gerris = 'gerris3D',
+        gerris = 'gerris2D',
         gfsfile = 'folding.gfs',
         num_processors = 16,
         num_split = 2,
