@@ -26,7 +26,7 @@ def main():
         # Properties
         capillary_number = 0.1,
         viscosity_ratio = 0.01,
-        reynolds_number = 100,
+        reynolds_number = 10,
         period = 1,
         end_time = 6,
 

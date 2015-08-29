@@ -65,16 +65,12 @@
         alpha = 1
     }
     SourceViscosity viscosity(T)
-    SourceTension T (1 / capillary_number) K
+    SourceTension T 1e-3 K
 
     # Initialize the velocity and tracer
     Init {} {
         T = tracer_init(x, y, z)
-        U = vortex_x(0.25, 0.25, x, y)
-        V = vortex_y(0.25, 0.25, x, y)
-        W = 0
     }
-
 
     # Set up forcings
     Source U {
