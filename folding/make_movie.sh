@@ -10,7 +10,7 @@
 # to obtain the names of the simulation snapshot files
 
 # Set some variables
-export GFSVIEW_BATCH=gfsview-batch3D
+export GFSVIEW_BATCH=gfsview-batch2D
 export GFV_FILE=$1
 
 # Find the location of some folders and files
