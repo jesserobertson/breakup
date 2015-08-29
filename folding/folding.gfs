@@ -57,7 +57,7 @@
     }
 
     # Set up sulfide and magma properties
-    RefineSurface 8 sphere(x, y, z, droplet_radius)
+    RefineSurface 8 (sphere(x, y, z, droplet_radius))
     VariableTracerVOF T
     VariableCurvature K T Kmax
     PhysicalParams {
