@@ -57,7 +57,7 @@
     }
 
     # Set up sulfide and magma properties
-    RefineSurface max_level { return tracer_init(x, y, z); }
+    RefineSurface 8 tracer_init(x, y, z)
     VariableTracerVOF T
     VariableCurvature K T Kmax
     PhysicalParams {
