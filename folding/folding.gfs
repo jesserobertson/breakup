@@ -86,10 +86,12 @@
 
     ## ADAPTIVITY
     # We want adaptivity around the fluid interface and the velocity field
-    AdaptGradient { istep = 1 } { 
-        cmax = 0.1
-        maxlevel = max_level 
-    } T
+    # Adapt according to interface curvature. 
+    AdaptFunction { istep = 1 } {
+        cmax = 0.2
+        maxlevel = max_level
+        cfactor = 2
+    } (T > 0 && T < 1 ? dL*Kmax : 0)
     AdaptError { istart = 5 istep = 1 } {
         cmax = 5e-2
         maxlevel = max_level
