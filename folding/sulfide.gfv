@@ -1,10 +1,10 @@
 # GfsView 2D
 View {
-   tx = -0.962113 ty = -0.0104586
+  tx = -0.0838119 ty = -0.501667
   sx = 1 sy = 1 sz = 1
   q0 = 0 q1 = 0 q2 = 0 q3 = 1
-  fov = 16.3896
-  r = 1 g = 1 b = 1
+  fov = 55.2206
+  r = 0.3 g = 0.4 b = 0.6
   res = 1
   lc = 0.001
   reactivity = 0.1
@@ -13,9 +13,6 @@ VOF {
   r = 0 g = 0 b = 0
   shading = Constant
   maxlevel = -1
-  font_size = 1
-  raster_font = 1
-  line_width = 1
 } {
   n.x = 0 n.y = 0 n.z = 1
   pos = 0
@@ -26,32 +23,9 @@ VOF {
 } T {
   reversed = 0
   use_scalar = 0
-  draw_edges = 0
-  interpolate = 0
 }
-Symmetry {
+Boundaries {
   r = 0 g = 0 b = 0
   shading = Constant
   maxlevel = -1
-  font_size = 1
-  raster_font = 1
-  line_width = 1
-} {
-  n.x = 0 n.y = 1 n.z = 0
-  pos = 0
-}
-Squares {
-  r = 0 g = 0 b = 0
-  shading = Constant
-  maxlevel = -1
-  font_size = 1
-  raster_font = 1
-  line_width = 1
-} {
-  n.x = 0 n.y = 0 n.z = 1
-  pos = 0
-} Level {
-  amin = 0 min = 2
-  amax = 0 max = 14
-  cmap = Jet
 }
