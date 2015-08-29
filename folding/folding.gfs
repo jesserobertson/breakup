@@ -23,6 +23,8 @@
     Global {
         // Parameters
         static double volume = 8. * M_PI * M_PI * M_PI;
+        static double offset = 0.5 * M_PI;
+        static double droplet_radius = 0.2 * M_PI;
 
         // Physical properties
         static double viscosity(double tracer) {
@@ -31,7 +33,6 @@
         }
 
         // Tracer distribution
-        static double droplet_radius = 0.25 * M_PI;
         static double tracer_init(double x, double y, double z) {
             double radius_sq = x * x + y * y + z * z;
             return radius_sq < droplet_radius ? 1 : 0;
@@ -74,32 +75,29 @@
 
     # Set up forcings
     Source U {
-        return tick(t) * vortex_x(0.25, 0.25, x, y) + 
-               tock(t) * vortex_x(-0.25, -0.25, x, y);
+        return tick(t) * vortex_x(offset, offset, x, y) + 
+               tock(t) * vortex_x(-offset, -offset, x, y);
     }
     Source V {
-        return tick(t) * vortex_y(0.25, 0.25, x, y) + 
-               tock(t) * vortex_y(-0.25, -0.25, x, y);
+        return tick(t) * vortex_y(offset, offset, x, y) + 
+               tock(t) * vortex_y(-offset, -offset, x, y);
     }
 
     ## ADAPTIVITY
     # We want adaptivity around the fluid interface and the velocity field
-    AdaptFunction { istep = 1 } {
-        cmax = 0
+    AdaptGradient { istep = 1 } { 
+        cmax = 0.1
         minlevel = min_level
-        maxlevel = max_level
-    } (T > 0 && T < 1)
-    SpatialSum { istep = 1 } sum_vnorm Velocity
+        maxlevel = max_level 
+    } T
     AdaptError { istep = 1 } {
         cmax = 5e-2
-        minlevel = min_level
         maxlevel = max_level
-    } U * sum_vnorm / volume
+    } U
     AdaptError { istep = 1 } {
         cmax = 5e-2
-        minlevel = min_level
         maxlevel = max_level
-    } V * sum_vnorm / volume
+    } V
 
     # Balance the number of elements across parallel subdomains at every
     # 5 timesteps if the imbalance is larger than 0.1 (i.e. 10% difference
