@@ -59,7 +59,7 @@
 
     # Set up sulfide and magma properties
     Refine 5
-    RefineSurface 9 (sphere(x, y, droplet_radius))
+    RefineSurface 9 (ellipse(x, y, droplet_radius, droplet_radius))
     VariableTracerVOF T
     VariableCurvature K T Kmax
     PhysicalParams {
