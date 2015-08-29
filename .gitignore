@@ -1,3 +1,8 @@
 *.ppm
 *.png
 .ipynb_checkpoints
+simulation_*.gfs
+*_mod.gfs
+*_parallel.gfs
+run.sh
+basename_list.txt
