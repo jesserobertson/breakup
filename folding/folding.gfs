@@ -31,8 +31,8 @@
         }
 
         // Tracer distribution
+        static double droplet_radius = 0.25 * M_PI;
         static double tracer_init(double x, double y, double z) {
-            static double droplet_radius = 0.25 * M_PI;
             double radius_sq = x * x + y * y + z * z;
             return radius_sq < droplet_radius ? 1 : 0;
         }
@@ -57,7 +57,7 @@
     }
 
     # Set up sulfide and magma properties
-    RefineSurface 8 { return tracer_init(x, y, z); }
+    RefineSurface 8 sphere(x, y, z, droplet_radius)
     VariableTracerVOF T
     VariableCurvature K T Kmax
     PhysicalParams {
