@@ -25,6 +25,7 @@
         static double volume = 8. * M_PI * M_PI * M_PI;
         static double offset = 0.5 * M_PI;
         static double droplet_radius = 0.2 * M_PI;
+        static double vortex_strength = 0.25;
 
         // Physical properties
         static double viscosity(double tracer) {
@@ -49,11 +50,11 @@
         }
         static double vortex_x(double x0, double y0, double x, double y) {
             double radius_sq = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-            return y / radius_sq;
+            return vortex_strength * y / radius_sq;
         }
         static double vortex_y(double x0, double y0, double x, double y) {
             double radius_sq = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-            return x / radius_sq;
+            return vortex_strength * x / radius_sq;
         }
     }
 
@@ -116,8 +117,16 @@
     } simulation_%09.3f.gfs
 }
 GfsBox {
-    left = BoundaryOutflow
-    right = BoundaryOutflow
-    top = BoundaryOutflow
-    bottom = BoundaryOutflow
+    left = Boundary {
+        BcDirichlet V 0
+    }
+    right = Boundary {
+        BcDirichlet V 0
+    }
+    top = Boundary {
+        BcDirichlet U 0
+    }
+    bottom = Boundary {
+        BcDirichlet U 0
+    }
 }
