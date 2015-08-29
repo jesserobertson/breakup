@@ -89,22 +89,19 @@
 
     ## ADAPTIVITY
     # We want adaptivity around the fluid interface and the velocity field
-    AdaptFunction { istep = 1 } {
-        cmax = 0
+    AdaptGradient { istep = 1 } { 
+        cmax = 0.1
         minlevel = min_level
-        maxlevel = max_level
-    } (T > 0 && T < 1)
-    SpatialSum { istep = 1 } sum_vnorm Velocity
+        maxlevel = max_level 
+    } T
     AdaptError { istep = 1 } {
         cmax = 5e-2
-        minlevel = min_level
         maxlevel = max_level
-    } U * sum_vnorm / volume
+    } U
     AdaptError { istep = 1 } {
         cmax = 5e-2
-        minlevel = min_level
         maxlevel = max_level
-    } V * sum_vnorm / volume
+    } V
 
     # Balance the number of elements across parallel subdomains at every
     # 5 timesteps if the imbalance is larger than 0.1 (i.e. 10% difference
