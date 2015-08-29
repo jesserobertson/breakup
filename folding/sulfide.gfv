@@ -1,70 +1,16 @@
-# GfsView 3D
+# GfsView 2D
 View {
-  tx = -0.105288 ty = 0.0769165
+   tx = -0.962113 ty = -0.0104586
   sx = 1 sy = 1 sz = 1
-  q0 = -0.222943 q1 = 0.392276 q2 = 0.0957712 q3 = 0.887268
-  fov = 33.4696
+  q0 = 0 q1 = 0 q2 = 0 q3 = 1
+  fov = 16.3896
   r = 1 g = 1 b = 1
   res = 1
   lc = 0.001
   reactivity = 0.1
 }
-Linear {
-  r = 1 g = 1 b = 1
-  shading = Constant
-  maxlevel = -1
-  font_size = 1
-  raster_font = 1
-  line_width = 1
-} {
-  n.x = 0 n.y = 0 n.z = 1
-  pos = -0.5
-} log(Vorticity) {
-  amin = 0 min = -1
-  amax = 0 max = 5
-  cmap = Gray
-} 0 {
-  reversed = 0
-  use_scalar = 1
-}
-Linear {
-  r = 1 g = 1 b = 1
-  shading = Constant
-  maxlevel = -1
-  font_size = 1
-  raster_font = 1
-  line_width = 1
-} {
-  n.x = 1 n.y = 0 n.z = 0
-  pos = -0.5
-} log(Vorticity) {
-  amin = 0 min = -1
-  amax = 0 max = 5
-  cmap = Gray
-} 0 {
-  reversed = 0
-  use_scalar = 1
-}
-Linear {
-  r = 1 g = 1 b = 1
-  shading = Constant
-  maxlevel = -1
-  font_size = 1
-  raster_font = 1
-  line_width = 1
-} {
-  n.x = 0 n.y = 1 n.z = 0
-  pos = -0.5
-} log(Vorticity) {
-  amin = 0 min = -1
-  amax = 0 max = 5
-  cmap = Gray
-} 0 {
-  reversed = 0
-  use_scalar = 1
-}
-Isosurface {
-  r = 0.911437 g = 0.641505 b = 0
+VOF {
+  r = 0 g = 0 b = 0
   shading = Constant
   maxlevel = -1
   font_size = 1
@@ -78,7 +24,34 @@ Isosurface {
   amax = 1
   cmap = Jet
 } T {
-  level = 0.5
-  reversed = 1
+  reversed = 0
   use_scalar = 0
+  draw_edges = 0
+  interpolate = 0
+}
+Symmetry {
+  r = 0 g = 0 b = 0
+  shading = Constant
+  maxlevel = -1
+  font_size = 1
+  raster_font = 1
+  line_width = 1
+} {
+  n.x = 0 n.y = 1 n.z = 0
+  pos = 0
+}
+Squares {
+  r = 0 g = 0 b = 0
+  shading = Constant
+  maxlevel = -1
+  font_size = 1
+  raster_font = 1
+  line_width = 1
+} {
+  n.x = 0 n.y = 0 n.z = 1
+  pos = 0
+} Level {
+  amin = 0 min = 2
+  amax = 0 max = 14
+  cmap = Jet
 }
