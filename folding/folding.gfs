@@ -58,6 +58,7 @@
     }
 
     # Set up sulfide and magma properties
+    Refine 5
     RefineSurface 8 (sphere(x, y, z, droplet_radius))
     VariableTracerVOF T
     VariableCurvature K T Kmax
@@ -66,7 +67,7 @@
         alpha = 1
     }
     SourceViscosity viscosity(T)
-    SourceTension T 1e-3 K
+    SourceTension T 0.01 K
 
     # Initialize the velocity and tracer
     Init {} {
@@ -87,14 +88,13 @@
     # We want adaptivity around the fluid interface and the velocity field
     AdaptGradient { istep = 1 } { 
         cmax = 0.1
-        minlevel = min_level
         maxlevel = max_level 
     } T
-    AdaptError { istep = 1 } {
+    AdaptError { istart = 5 istep = 1 } {
         cmax = 5e-2
         maxlevel = max_level
     } U
-    AdaptError { istep = 1 } {
+    AdaptError { istart = 5 istep = 1 } {
         cmax = 5e-2
         maxlevel = max_level
     } V
