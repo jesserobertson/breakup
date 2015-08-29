@@ -23,6 +23,7 @@
     Global {
         // Parameters
         static double volume = 8. * M_PI * M_PI * M_PI;
+        static double offset = 0.5 * M_PI;
 
         // Physical properties
         static double viscosity(double tracer) {
@@ -65,25 +66,25 @@
         alpha = 1
     }
     SourceViscosity viscosity(T)
-    SourceTension T (1 / capillary_number) K
+    SourceTension T 1 K
 
     # Initialize the velocity and tracer
     Init {} {
         T = tracer_init(x, y, z)
-        U = vortex_x(0.25, 0.25, x, y)
-        V = vortex_y(0.25, 0.25, x, y)
+        U = vortex_x(offset, offset, x, y)
+        V = vortex_y(offset, offset, x, y)
         W = 0
     }
 
 
     # Set up forcings
     Source U {
-        return tick(t) * vortex_x(0.25, 0.25, x, y) + 
-               tock(t) * vortex_x(-0.25, -0.25, x, y);
+        return tick(t) * vortex_x(offset, offset, x, y) + 
+               tock(t) * vortex_x(-offset, -offset, x, y);
     }
     Source V {
-        return tick(t) * vortex_y(0.25, 0.25, x, y) + 
-               tock(t) * vortex_y(-0.25, -0.25, x, y);
+        return tick(t) * vortex_y(offset, offset, x, y) + 
+               tock(t) * vortex_y(-offset, -offset, x, y);
     }
 
     ## ADAPTIVITY
