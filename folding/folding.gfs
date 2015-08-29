@@ -90,9 +90,9 @@
     # Adapt according to interface curvature. 
     AdaptFunction { istep = 1 } {
         cmax = 0.2
+        minlevel = min_level
         maxlevel = max_level
-        cfactor = 2
-    } (T > 0 && T < 1 ? dL*Kmax : 0)
+    } (T > 0 && T < 1)
     AdaptError { istart = 5 istep = 1 } {
         cmax = 5e-2
         maxlevel = max_level
