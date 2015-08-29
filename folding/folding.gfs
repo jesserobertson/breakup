@@ -5,28 +5,12 @@
 #
 # description: Simulation of thread formation in a laminar chaotic flow field. 
 #
-#   Parameters to be defined are:
-#
-#       viscosity_ratio - the viscosity ratio between the sulfide and magma
-#       reynolds_number - the Reynolds number for the simulation
-#       capillary_number - the capillary number for the simulation
-#       min_level - the minimum resolution (3 works well)
-#       max_level - the finest resolution (7-8 is good for a desktop)
-#       period - the period of the vortex blinking
-#       end_time - the end time for the simulation
-#
 #   Ratios are sulfide / magma. Don't modify this script directly, see
 #   configure.py to set parameters etc.
 #
 1 0 GfsSimulation GfsBox GfsGEdge {} {
     # Function definitions etc
     Global {
-        // Parameters
-        static double volume = 8. * M_PI * M_PI * M_PI;
-        static double offset = 0.5 * M_PI;
-        static double droplet_radius = 0.2 * M_PI;
-        static double vortex_strength = 0.25;
-
         // Physical properties
         static double viscosity(double tracer) {
             return (1 + (viscosity_ratio - 1) * tracer)
@@ -58,17 +42,25 @@
         }
     }
 
-    # Set up sulfide and magma properties
+    # Set up boundaries
+    Solid ({
+        double c = cube (0.0, 0.0, 0.0, 1.1);
+        double e = ellipse(x, y, domain_radius, domain_radius);
+        return MAX(c, - cylinder);
+    })
     Refine 5
     RefineSurface 9 (ellipse(x, y, droplet_radius, droplet_radius))
+    RefineSolid 9
+
+    # Set up sulfide and magma properties
     VariableTracerVOF T
     VariableCurvature K T Kmax
     PhysicalParams {
-        L = 2. * M_PI
+        L = 2. * domain_radius
         alpha = 1
     }
     SourceViscosity viscosity(T)
-    SourceTension T 0.01 K
+    SourceTension T surface_tension K
 
     # Initialize the velocity and tracer
     Init {} {
@@ -77,28 +69,29 @@
 
     # Set up forcings
     Source U {
-        return tick(t) * vortex_x(offset, offset, x, y) + 
-               tock(t) * vortex_x(-offset, -offset, x, y);
+        return tick(t) * vortex_x(offset, 0, x, y) + 
+               tock(t) * vortex_x(-offset, 0, x, y);
     }
     Source V {
-        return tick(t) * vortex_y(offset, offset, x, y) + 
-               tock(t) * vortex_y(-offset, -offset, x, y);
+        return tick(t) * vortex_y(offset, 0, x, y) + 
+               tock(t) * vortex_y(-offset, 0, x, y);
     }
 
     ## ADAPTIVITY
     # We want adaptivity around the fluid interface and the velocity field
-    # Adapt according to interface curvature. 
-    AdaptFunction { istep = 1 } {
-        cmax = 0.2
+    AdaptGradient { istep = 1 } {
+        cmax = 5e-2
         minlevel = min_level
         maxlevel = max_level
-    } (T > 0 && T < 1)
+    } T
     AdaptError { istart = 5 istep = 1 } {
         cmax = 5e-2
+        minlevel = min_level
         maxlevel = max_level
     } U
     AdaptError { istart = 5 istep = 1 } {
         cmax = 5e-2
+        minlevel = min_level
         maxlevel = max_level
     } V
 
@@ -117,16 +110,4 @@
     } simulation_%09.3f.gfs
 }
 GfsBox {
-    left = Boundary {
-        BcDirichlet V 0
-    }
-    right = Boundary {
-        BcDirichlet V 0
-    }
-    top = Boundary {
-        BcDirichlet U 0
-    }
-    bottom = Boundary {
-        BcDirichlet U 0
-    }
 }

@@ -23,12 +23,19 @@ def main():
     """
     # Configure current run
     configuration = dict(
-        # Properties
-        capillary_number = 0.1,
-        viscosity_ratio = 0.01,
+        # Flow properties
         reynolds_number = 10,
+        vortex_strength = 0.25,
+        offset = 0.25,
         period = 1,
-        end_time = 6,
+        domain_radius = 0.5,
+
+        # Droplet properties
+        droplet_radius = 0.2,
+        droplet_x = 0.1,
+        droplet_y = 0.1,
+        surface_tension = 1,
+        viscosity_ratio = 0.01,
 
         # Simulation info
         run_name = 'folding',
@@ -36,6 +43,7 @@ def main():
         gfsfile = 'folding.gfs',
         num_processors = 16,
         num_split = 2,
+        end_time = 6,
         min_level = 5,
         max_level = 11,
         simulation_output_times = 0.01
