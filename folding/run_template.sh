@@ -9,17 +9,13 @@
 #       bash script to run Gerris.
 #
 echo "Generating initial simulation file"
-mpirun -np 1 --output-filename {run_name}_mod.gfs {gerris} -m \
+{gerris} -m \
 {definitions}
-    -s{num_split} -i {gfsfile}
-mv {run_name}_mod.gfs.1.0 {run_name}_mod.gfs
-rm -f {run_name}_mod.gfs.*
+    -s{num_split} -i {gfsfile} > {run_name}_mod.gfs
 
 echo "Generating initial partition"
-mpirun -np 1 --output-filename {run_name}_parallel.gfs {gerris} \
-    -b{num_processors} {run_name}_mod.gfs
-mv {run_name}_parallel.gfs.1.0 {run_name}_parallel.gfs
-rm -f {run_name}_parallel.gfs.*
+{gerris} -b{num_processors} {run_name}_mod.gfs \
+	> {run_name}_parallel.gfs
 
 echo "Running parallel simulation"
 mpirun -np {num_processors} {gerris} {run_name}_parallel.gfs

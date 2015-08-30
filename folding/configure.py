@@ -25,13 +25,13 @@ def main():
     configuration = dict(
         # Flow properties
         reynolds_number = 10,
-        vortex_strength = 0.25,
+        vortex_strength = 3.14159,
         offset = 0.25,
-        period = 0.25,
+        period = 0.5,
         domain_radius = 0.5,
 
         # Droplet properties
-        droplet_radius = 0.2,
+        droplet_radius = 0.1,
         droplet_x = 0.1,
         droplet_y = 0.1,
         surface_tension = 1,
@@ -41,19 +41,19 @@ def main():
         run_name = 'folding',
         gerris = 'gerris2D',
         gfsfile = 'folding.gfs',
-        num_processors = 16,
+        num_processors = 8,
         num_split = 2,
-        end_time = 0.1,
+        end_time = 5,
         min_level = 5,
-        max_level = 11,
+        max_level = 8,
         simulation_output_times = 0.01
     )
 
     # Load up runinng template
-    with open('run_template.sh', 'rb') as source:
+    with open('run_template.sh', 'r') as source:
         template = source.read()
         output = 'run.sh'.format(configuration['run_name'])
-        with open(output, 'wb') as sink:
+        with open(output, 'w') as sink:
             sink.write(
                 template.format(
                     definitions=make_definition_args(configuration),

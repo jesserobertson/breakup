@@ -42,6 +42,6 @@ done
 
 # Generate movie, copy back to root directory
 cd $IMAGE_FOLDER
-ffmpeg -r 10 -b 3000 -i %07d.ppm $GFV_FILE.mp4
+avconv -r 10 -b 3000 -i %07d.ppm $GFV_FILE.mp4
 mv $GFV_FILE.mp4 ../.
 cd $ROOT_FOLDER

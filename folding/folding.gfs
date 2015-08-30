@@ -18,9 +18,12 @@
         }
 
         // Tracer distribution
+        static double drop_x = 0.0;
+        static double drop_y = 0.05;
         static double tracer_init(double x, double y) {
-            double radius_sq = x * x + y * y;
-            return radius_sq < droplet_radius ? 1 : 0;
+            double radius_sq = (x - drop_x) * (x - drop_x) 
+                               + (y - drop_y) * (y - drop_y);
+            return radius_sq < droplet_radius * droplet_radius ? 1 : 0;
         }
 
         // Streamfunction
@@ -34,22 +37,23 @@
         }
         static double vortex_x(double x0, double y0, double x, double y) {
             double radius_sq = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-            return vortex_strength * y / radius_sq;
+            return vortex_strength * y / (2 * M_PI * radius_sq);
         }
         static double vortex_y(double x0, double y0, double x, double y) {
             double radius_sq = (x - x0) * (x - x0) + (y - y0) * (y - y0);
-            return vortex_strength * x / radius_sq;
+            return -vortex_strength * x / (2 * M_PI * radius_sq);
         }
     }
 
     # Set up boundaries
     Solid ({
-        return MAX(cube (0.0, 0.0, 0.0, 1.1), 
-                   -ellipse(x, y, domain_radius, domain_radius));
+        return MAX(cube(0.0, 0.0, 0.0, 1.1), 
+                   -ellipse(0, 0, domain_radius, domain_radius));
     })
     Refine 5
-    RefineSurface 9 (ellipse(x, y, droplet_radius, droplet_radius))
-    RefineSolid 9
+    RefineSurface 8 (ellipse(x - drop_x, y - drop_y, 
+                             droplet_radius, droplet_radius))
+    RefineSolid 8
 
     # Set up sulfide and magma properties
     VariableTracerVOF T
@@ -68,11 +72,11 @@
     # Set up forcings
     Source U {
         return tick(t) * vortex_x(offset, 0, x, y) + 
-               tock(t) * vortex_x(-offset, 0, x, y);
+               tock(t) * vortex_x(-offset, 0, x, y) - U;
     }
     Source V {
         return tick(t) * vortex_y(offset, 0, x, y) + 
-               tock(t) * vortex_y(-offset, 0, x, y);
+               tock(t) * vortex_y(-offset, 0, x, y) - V;
     }
 
     ## ADAPTIVITY
