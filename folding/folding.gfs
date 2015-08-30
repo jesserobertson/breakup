@@ -55,7 +55,6 @@
     VariableTracerVOF T
     VariableCurvature K T Kmax
     PhysicalParams {
-        L = 2. * domain_radius
         alpha = 1
     }
     SourceViscosity viscosity(T)
@@ -97,7 +96,7 @@
     # Balance the number of elements across parallel subdomains at every
     # 5 timesteps if the imbalance is larger than 0.1 (i.e. 10% difference
     # between the largest and smallest subdomains).
-    EventBalance { istep = 5 } 0.1
+    EventBalance { istep = 10 } 0.1
 
     # Output of solution information/data
     Time { end = end_time }
@@ -107,6 +106,7 @@
     OutputSimulation {
         start = 0 step = simulation_output_times
     } simulation_%09.3f.gfs
+    OutputSimulation { start = end } simulation_end.gfs
 }
 GfsBox {
 }

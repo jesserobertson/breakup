@@ -27,7 +27,7 @@ def main():
         reynolds_number = 10,
         vortex_strength = 0.25,
         offset = 0.25,
-        period = 1,
+        period = 0.25,
         domain_radius = 0.5,
 
         # Droplet properties
@@ -43,7 +43,7 @@ def main():
         gfsfile = 'folding.gfs',
         num_processors = 16,
         num_split = 2,
-        end_time = 6,
+        end_time = 0.1,
         min_level = 5,
         max_level = 11,
         simulation_output_times = 0.01
