@@ -45,7 +45,7 @@
     # Set up boundaries
     Solid ({
         return MAX(cube (0.0, 0.0, 0.0, 1.1), 
-                   ellipse(x, y, domain_radius, domain_radius));
+                   -ellipse(x, y, domain_radius, domain_radius));
     })
     Refine 5
     RefineSurface 9 (ellipse(x, y, droplet_radius, droplet_radius))
