@@ -34,7 +34,7 @@ def main():
         droplet_radius = 0.1,
         droplet_x = 0.1,
         droplet_y = 0.1,
-        surface_tension = 1,
+        surface_tension = 0.01,
         viscosity_ratio = 0.01,
 
         # Simulation info
